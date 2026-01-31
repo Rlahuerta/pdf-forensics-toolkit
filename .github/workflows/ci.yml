@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Conda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        environment-file: environment.yml
+        activate-environment: pdf-forensics-toolkit
+        python-version: 3.11
+        auto-activate-base: false
+    
+    - name: Verify conda environment
+      shell: bash -el {0}
+      run: |
+        conda info
+        conda list
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libmagic1 exiftool
+    
+    - name: Run tests
+      shell: bash -el {0}
+      run: |
+        python -m pytest tests/ -v --cov=pdf_forensics --cov=pdf_source_identifier --cov=verify_signature --cov=compare_pdfs --cov-report=term-missing
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

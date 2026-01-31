@@ -1,6 +1,12 @@
 # PDF Forensics Toolkit
 
+[![CI](https://github.com/Rlahuerta/pdf-forensics-toolkit/workflows/CI/badge.svg)](https://github.com/Rlahuerta/pdf-forensics-toolkit/actions)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+![Platform](https://img.shields.io/badge/platform-ubuntu-orange.svg)
+
 A comprehensive forensic toolkit for analyzing PDF documents to detect tampering, identify document origins, and assess authenticity. Designed for legal professionals, fraud investigators, and compliance teams.
+
+**Tested on:** Ubuntu (via GitHub Actions CI)
 
 ## Purpose
 
