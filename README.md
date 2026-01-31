@@ -21,12 +21,44 @@ This toolkit helps answer critical questions about PDF documents:
 
 ### 1. Setup Environment
 
+#### Conda (Recommended)
+
 ```bash
 # Create environment from YAML (first time)
 conda env create -f environment.yml -p ./pdf_forensics_env
 
 # Activate environment
 conda activate ./pdf_forensics_env
+```
+
+#### Pip (Alternative)
+
+**Important**: Install system dependencies first:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y libmagic1 exiftool
+
+# macOS
+brew install libmagic exiftool
+```
+
+Then install the package:
+
+```bash
+# Install package
+pip install .
+
+# Or install in development mode with test dependencies
+pip install -e .[dev]
+```
+
+After installation, you can use the console commands:
+
+```bash
+pdf-forensics data/
+verify-pdf-sig document.pdf
+compare-pdfs file1.pdf file2.pdf
 ```
 
 ### 2. Analyze Documents
