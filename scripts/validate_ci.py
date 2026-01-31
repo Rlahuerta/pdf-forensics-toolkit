@@ -29,7 +29,7 @@ def validate_yaml_syntax(filepath):
             yaml.safe_load(f)
         print(f"✓ Valid YAML syntax: {filepath}")
         return True
-    except Exception as e:
+    except (yaml.YAMLError, FileNotFoundError) as e:
         print(f"✗ Invalid YAML syntax in {filepath}: {e}")
         return False
 
@@ -111,7 +111,7 @@ def validate_workflow_structure(workflow_path):
         
         return True
         
-    except Exception as e:
+    except (yaml.YAMLError, KeyError, TypeError) as e:
         print(f"✗ Error validating workflow structure: {e}")
         return False
 
@@ -147,7 +147,7 @@ def validate_environment_yml(env_path):
         
         return True
         
-    except Exception as e:
+    except (yaml.YAMLError, KeyError, TypeError) as e:
         print(f"✗ Error validating environment.yml: {e}")
         return False
 
