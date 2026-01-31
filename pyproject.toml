@@ -50,6 +50,9 @@ compare-pdfs = "pdf_forensics.cli:main_compare_pdfs"
 [project.urls]
 Repository = "https://github.com/Rlahuerta/pdf-forensics-toolkit"
 
+[tool.hatch.build.targets.wheel]
+packages = ["pdf_forensics"]
+
 [tool.hatch.version]
 path = "pdf_forensics/__init__.py"
 pattern = '__version__ = "(?P<version>[^"]+)"'
