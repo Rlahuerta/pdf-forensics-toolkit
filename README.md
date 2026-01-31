@@ -1,5 +1,7 @@
 # PDF Forensics Toolkit
 
+[![Verify Modifications](https://github.com/Rlahuerta/pdf-forensics-toolkit/actions/workflows/verify-modifications.yml/badge.svg)](https://github.com/Rlahuerta/pdf-forensics-toolkit/actions/workflows/verify-modifications.yml)
+
 A comprehensive forensic toolkit for analyzing PDF documents to detect tampering, identify document origins, and assess authenticity. Designed for legal professionals, fraud investigators, and compliance teams.
 
 ## Purpose
