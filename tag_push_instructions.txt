@@ -1,0 +1,14 @@
+# Instructions for Pushing the v1.0.0 Tag
+
+The git tag `v1.0.0` has been created locally and points to the latest commit.
+
+To push the tag to GitHub, run:
+
+git push origin v1.0.0
+
+After pushing the tag, you can create a draft release on GitHub:
+1. Go to: https://github.com/Rlahuerta/pdf-forensics-toolkit/releases/new
+2. Select tag: v1.0.0
+3. Follow the instructions in RELEASE.md
+
+Note: The tag must be pushed before creating the GitHub release.
