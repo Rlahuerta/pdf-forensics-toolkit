@@ -284,6 +284,49 @@ Test PDFs are located in `tests/fixtures/` directory:
 | `with_image_test.pdf` | PDF with embedded PNG image |
 | `empty_metadata_test.pdf` | PDF with no metadata |
 
+## Continuous Integration
+
+This project includes an automated verification pipeline that ensures all code modifications are correct before merging.
+
+### Verification Pipeline
+
+The GitHub Actions workflow (`.github/workflows/verify-modifications.yml`) automatically runs on:
+- Push to `main`, `develop`, or any `copilot/**` branch
+- Pull requests targeting `main` or `develop`
+- Manual workflow dispatch
+
+### What Gets Verified
+
+| Check | Description |
+|-------|-------------|
+| **Python Syntax** | Validates all `.py` files compile without syntax errors |
+| **Test Suite** | Runs complete pytest test suite (63+ tests) |
+| **Code Coverage** | Generates coverage reports to track test effectiveness |
+| **Critical Files** | Ensures all required files and directories are present |
+
+### Pipeline Status
+
+Check the badge at the top of this README to see the current pipeline status:
+- ✅ Green: All checks passed
+- ❌ Red: One or more checks failed
+- 🟡 Yellow: Pipeline is running
+
+### Running Locally
+
+To verify your changes before pushing:
+
+```bash
+# 1. Validate Python syntax
+python -m py_compile pdf_source_identifier.py verify_signature.py compare_pdfs.py
+python -m py_compile pdf_forensics/*.py
+
+# 2. Run tests
+python -m pytest tests/ -v
+
+# 3. Check coverage
+python -m pytest tests/ --cov=. --cov-report=term-missing
+```
+
 ## License
 
 MIT
