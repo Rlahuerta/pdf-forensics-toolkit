@@ -36,7 +36,7 @@ jobs:
     - name: Run tests
       shell: bash -el {0}
       run: |
-        python -m pytest tests/ -v --cov=. --cov-report=term-missing
+        python -m pytest tests/ -v --cov=pdf_forensics --cov=pdf_source_identifier --cov=verify_signature --cov=compare_pdfs --cov-report=term-missing
     
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4

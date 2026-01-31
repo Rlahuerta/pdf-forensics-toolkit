@@ -32,17 +32,17 @@ To test the workflow locally before pushing:
 # Validate YAML syntax
 python -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
 
-# Create conda environment
-conda env create -f environment.yml -p ./pdf_forensics_env
+# Create conda environment (matches CI workflow)
+conda env create -f environment.yml -n pdf-forensics-toolkit
 
 # Activate environment
-conda activate ./pdf_forensics_env
+conda activate pdf-forensics-toolkit
 
 # Install system dependencies (Ubuntu/Debian)
 sudo apt-get install -y libmagic1 exiftool
 
-# Run tests
-python -m pytest tests/ -v --cov=. --cov-report=term-missing
+# Run tests (matches CI workflow)
+python -m pytest tests/ -v --cov=pdf_forensics --cov=pdf_source_identifier --cov=verify_signature --cov=compare_pdfs --cov-report=term-missing
 ```
 
 ### Notes
