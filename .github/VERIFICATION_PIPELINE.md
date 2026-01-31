@@ -32,50 +32,46 @@ The pipeline performs the following verification steps in order:
 ### 1. Checkout Code
 Uses `actions/checkout@v4` to clone the repository.
 
-### 2. Set up Python 3.11
-Installs Python 3.11 (matching `environment.yml` specification) with pip caching enabled.
+### 2. Set up Conda Environment
+Creates a conda environment from `environment.yml` using `conda-incubator/setup-miniconda@v3`:
+- Installs Python 3.11
+- Activates the `pdf-forensics-toolkit` environment
+- Installs all dependencies from `environment.yml` via conda/pip
 
 ### 3. Install System Dependencies
 Installs required system packages:
 - `libmagic1` - File type detection
 - `exiftool` - Metadata extraction
 
-### 4. Install Python Dependencies
-Installs all packages specified in `environment.yml`:
-- PyMuPDF, pikepdf, pdfplumber, pypdf - PDF parsing
-- pyHanko, cryptography, endesive - Digital signatures
-- pytest, pytest-cov - Testing framework
-- And 10+ more packages
-
-### 5. Verify Python Syntax
+### 4. Verify Python Syntax
 Compiles all Python source files to check for syntax errors:
 - `pdf_source_identifier.py`
 - `verify_signature.py`
 - `compare_pdfs.py`
 - All files in `pdf_forensics/` package
 
-### 6. Run Test Suite
+### 5. Run Test Suite
 Executes the complete pytest test suite with verbose output:
 - 63+ tests across 3 test files
 - Short traceback format for clarity
 - Fails if any test fails
 
-### 7. Run Tests with Coverage
+### 6. Run Tests with Coverage
 Generates code coverage reports:
 - Terminal output with missing lines
 - XML format for CI systems
 - Helps identify untested code
 
-### 8. Display Coverage Summary
+### 7. Display Coverage Summary
 Shows coverage percentage and summary (always runs, even if previous step fails).
 
-### 9. Check for Critical Files
+### 8. Check for Critical Files
 Verifies all essential files and directories exist:
 - Main scripts: `pdf_source_identifier.py`, `verify_signature.py`, `compare_pdfs.py`
 - Package directory: `pdf_forensics/`
 - Test directory: `tests/`
 
-### 10. Validation Summary
+### 9. Validation Summary
 Displays a success message if all checks pass.
 
 ## Expected Outcomes
@@ -131,9 +127,10 @@ To add a new verification step:
 
 When updating `environment.yml`:
 
-1. Also update the "Install Python dependencies" step in the workflow
-2. Keep versions in sync
-3. Test the workflow after changes
+1. Update the dependencies in `environment.yml`
+2. The workflow will automatically use the updated environment file
+3. No need to manually update the workflow file for dependency changes
+4. Test the workflow after changes to ensure all packages install correctly
 
 ### Modifying Triggers
 
@@ -147,9 +144,10 @@ To change when the pipeline runs:
 
 ### Pipeline Fails on Dependency Installation
 
-- Check that all dependencies in `environment.yml` are available on PyPI
+- Check that all dependencies in `environment.yml` are available via conda or PyPI
 - Verify version constraints are correct
-- Some packages may require system dependencies
+- Some packages may require system dependencies (install these separately in the workflow)
+- Check the conda channel configuration if packages aren't found
 
 ### Pipeline Fails on Tests
 
