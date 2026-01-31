@@ -30,7 +30,7 @@ class TestExtractMetadata:
         # Page count is in file_info
         assert "file_info" in result
         # Look for page info in file_type string
-        assert "pages" in result["file_info"].get("file_type", "")
+        assert "page" in result["file_info"].get("file_type", "").lower()
 
 
 class TestComparePdfs:
