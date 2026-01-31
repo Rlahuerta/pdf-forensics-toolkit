@@ -174,10 +174,14 @@ Generate coverage report
 
 ## Next Steps (Optional)
 
-### 1. Add Status Badge to README
+### 1. ✅ Add Status Badge to README (COMPLETED)
+
+CI badge, Python version badge, and platform badge have been added to README.md:
 
 ```markdown
 [![CI](https://github.com/Rlahuerta/pdf-forensics-toolkit/workflows/CI/badge.svg)](https://github.com/Rlahuerta/pdf-forensics-toolkit/actions)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+![Platform](https://img.shields.io/badge/platform-ubuntu-orange.svg)
 ```
 
 ### 2. Configure Branch Protection
