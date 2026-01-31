@@ -1,0 +1,41 @@
+# PDF Forensics Toolkit - Git Ignore
+
+# Private data files (not part of repository)
+data/
+
+# Conda environment
+pdf_forensics_env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Generated reports (examples only)
+*_report.md
+!README.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Phase 2: Downloaded PDF samples (too large for git)
+data/downloads/
+data/samples/
