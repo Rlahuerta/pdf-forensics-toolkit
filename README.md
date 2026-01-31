@@ -1,6 +1,9 @@
 # PDF Forensics Toolkit
 
 [![Verify Modifications](https://github.com/Rlahuerta/pdf-forensics-toolkit/actions/workflows/verify-modifications.yml/badge.svg)](https://github.com/Rlahuerta/pdf-forensics-toolkit/actions/workflows/verify-modifications.yml)
+[![OS - Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange?logo=ubuntu)](https://ubuntu.com/)
+[![Python - 3.11](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Platform - Linux](https://img.shields.io/badge/Platform-Linux-lightgrey?logo=linux)](https://www.linux.org/)
 
 A comprehensive forensic toolkit for analyzing PDF documents to detect tampering, identify document origins, and assess authenticity. Designed for legal professionals, fraud investigators, and compliance teams.
 
@@ -306,10 +309,19 @@ The GitHub Actions workflow (`.github/workflows/verify-modifications.yml`) autom
 
 ### Pipeline Status
 
-Check the badge at the top of this README to see the current pipeline status:
-- ✅ Green: All checks passed
-- ❌ Red: One or more checks failed
-- 🟡 Yellow: Pipeline is running
+Check the badges at the top of this README to see the current status:
+
+| Badge | Meaning |
+|-------|---------|
+| ![Verify Modifications](https://img.shields.io/badge/build-passing-brightgreen) | ✅ All tests passing / ❌ Tests failing / 🟡 Running |
+| ![OS - Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange) | Tests run on Ubuntu Linux (latest stable) |
+| ![Python - 3.11](https://img.shields.io/badge/Python-3.11-blue) | Tested with Python 3.11 |
+| ![Platform - Linux](https://img.shields.io/badge/Platform-Linux-lightgrey) | Linux platform compatibility verified |
+
+**Status Indicators:**
+- ✅ Green "passing": All checks passed
+- ❌ Red "failing": One or more checks failed
+- 🟡 Yellow "running": Pipeline is currently running
 
 ### Running Locally
 
