@@ -13,6 +13,17 @@ from pypdf import PdfReader
 
 from pdf_forensics.logging_config import get_logger
 from pdf_forensics.types import IncrementalUpdateResult, TamperingResult, SecurityResult
+from pdf_forensics.constants import (
+    COMMON_PRODUCERS,
+    MAX_CONTENT_STREAMS_PER_PAGE,
+    MAX_ORPHAN_OBJECTS_NORMAL,
+    MAX_FORM_FIELDS_NORMAL,
+    MAX_ANNOTATIONS_NORMAL,
+    SCORING_POINTS_ORPHAN_OBJECTS,
+    SCORING_POINTS_HIDDEN_CONTENT,
+    SCORING_POINTS_SECURITY_THREAT,
+    MAX_SCORE,
+)
 
 logger = get_logger(__name__)
 
@@ -230,6 +241,12 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                 result["indicators"].append(f"Document processed with online/suspicious tool: {sus}")
                 risk_score += 15
                 break
+        
+        # Common producers are informational only, no risk score
+        for common in COMMON_PRODUCERS:
+            if common in producer or common in creator:
+                result["indicators"].append(f"Document created with common tool: {common}")
+                break
         doc.close()
     except Exception as e:
         logger.warning(f"Failed to extract metadata: {e}")
@@ -317,7 +334,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
             
             if orphan_count > 0:
                 result["indicators"].append(f"{orphan_count} orphan object(s) found - possible remnants of editing")
-                if orphan_count > 10:
+                if orphan_count > MAX_ORPHAN_OBJECTS_NORMAL:
                     risk_score += 20
                     result["structural_anomalies"].append(f"High orphan count ({orphan_count}) - significant editing history")
                 elif orphan_count > 3:
@@ -379,7 +396,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                             risk_score += 10
             
             if hidden_items:
-                result["hidden_content"].extend(hidden_items[:10])  # Limit
+                result["hidden_content"].extend(hidden_items[:10])  # Limit to 10 items
                 risk_score += len(hidden_items) * 5
                 result["indicators"].append(f"{len(hidden_items)} hidden element(s) detected")
                 
@@ -396,8 +413,8 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                 if '/Contents' in page:
                     contents = page['/Contents']
                     if isinstance(contents, pikepdf.Array):
-                        # Increased threshold to 10 to reduce false positives
-                        if len(contents) > 10:
+                         # Increased threshold to MAX_CONTENT_STREAMS_PER_PAGE to reduce false positives
+                         if len(contents) > MAX_CONTENT_STREAMS_PER_PAGE:
                             result["structural_anomalies"].append(
                                 f"Page {page_num + 1} has {len(contents)} content streams (unusually high)"
                             )
@@ -445,10 +462,10 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                                         form_count += 1
                             except Exception as e:
                                 logger.warning(f"Failed to extract object type: {e}")
-                        if form_count > 10:  # Increased from 5
-                            result["structural_anomalies"].append(
-                                f"Page {page_num + 1} has {form_count} form XObjects"
-                            )
+                        if form_count > MAX_FORM_FIELDS_NORMAL:
+                             result["structural_anomalies"].append(
+                                 f"Page {page_num + 1} has {form_count} form XObjects"
+                             )
             
             if shadow_risk:
                 result["shadow_attack_risk"] = True
@@ -592,7 +609,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
         logger.warning(f"Failed to parse content stream: {e}")
     
     # 7. Calculate Final Risk and Determine Compromise Status
-    result["risk_score"] = min(risk_score, 100)
+    result["risk_score"] = min(risk_score, MAX_SCORE)
     
     if risk_score >= 60:
         result["is_compromised"] = True

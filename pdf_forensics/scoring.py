@@ -7,6 +7,24 @@ Functions for calculating integrity scores, modification scores, and similarity 
 import pikepdf
 from typing import Dict, Any
 from pdf_forensics.logging_config import get_logger
+from pdf_forensics.constants import (
+    SIZE_INCREASE_LARGE_PERCENT,
+    SIZE_INCREASE_MEDIUM_PERCENT,
+    SIZE_INCREASE_SMALL_PERCENT,
+    SCORING_POINTS_SUBSTANTIAL_CHANGE,
+    SCORING_POINTS_ID_MISMATCH,
+    SCORING_POINTS_DATE_MISMATCH,
+    SCORING_POINTS_LARGE_SIZE_INCREASE,
+    SCORING_POINTS_MEDIUM_SIZE_INCREASE,
+    SCORING_POINTS_SMALL_SIZE_INCREASE,
+    SCORING_POINTS_ORPHAN_OBJECTS,
+    SCORING_POINTS_HIDDEN_CONTENT,
+    SCORING_POINTS_SECURITY_THREAT,
+    MAX_ANNOTATIONS_NORMAL,
+    MAX_OBJECTS_TO_ANALYZE,
+    MAX_SCORE,
+    MIN_SCORE,
+)
 
 logger = get_logger(__name__)
 
@@ -99,7 +117,7 @@ def _quantify_changes(pdf_path: str, incremental_data: Dict) -> Dict[str, Any]:
             # Objects with generation > 0 were modified
             modified_objects = 0
             total_objects = 0
-            for objnum in range(1, min(len(pdf.objects) + 1, 1000)):
+            for objnum in range(1, min(len(pdf.objects) + 1, MAX_OBJECTS_TO_ANALYZE)):
                 try:
                     # Check if object exists
                     obj = pdf.get_object((objnum, 0))
@@ -131,34 +149,34 @@ def _quantify_changes(pdf_path: str, incremental_data: Dict) -> Dict[str, Any]:
     
     # Points for incremental updates
     update_count = incremental_data.get("update_count", 0)
-    score += min(update_count * 15, 30)  # Up to 30 points
+    score += min(update_count * SCORING_POINTS_SUBSTANTIAL_CHANGE, 30)  # Up to 30 points
     
     # Points for ID mismatch
     if not incremental_data.get("original_id_match", True):
-        score += 20
+        score += SCORING_POINTS_ID_MISMATCH
     
     # Points for date mismatch
     if not incremental_data.get("dates_match", True):
-        score += 10
+        score += SCORING_POINTS_DATE_MISMATCH
     
     # Points for size increase
     size_increase = metrics.get("size_increase_percent", 0)
-    if size_increase > 50:
-        score += 20
-    elif size_increase > 20:
-        score += 15
-    elif size_increase > 5:
-        score += 10
+    if size_increase > SIZE_INCREASE_LARGE_PERCENT:
+        score += SCORING_POINTS_LARGE_SIZE_INCREASE
+    elif size_increase > SIZE_INCREASE_MEDIUM_PERCENT:
+        score += SCORING_POINTS_MEDIUM_SIZE_INCREASE
+    elif size_increase > SIZE_INCREASE_SMALL_PERCENT:
+        score += SCORING_POINTS_SMALL_SIZE_INCREASE
     elif size_increase > 0:
         score += 5
     
     # Points for annotations (often indicate manual edits)
-    if metrics["annotation_count"] > 10:
-        score += 15
+    if metrics["annotation_count"] > MAX_ANNOTATIONS_NORMAL:
+        score += SCORING_POINTS_SUBSTANTIAL_CHANGE
     elif metrics["annotation_count"] > 0:
-        score += 10
+        score += SCORING_POINTS_DATE_MISMATCH
     
-    metrics["modification_score"] = min(score, 100)
+    metrics["modification_score"] = min(score, MAX_SCORE)
     
     # Determine severity
     if score == 0:
@@ -177,7 +195,7 @@ def _quantify_changes(pdf_path: str, incremental_data: Dict) -> Dict[str, Any]:
 
 def _calculate_integrity_score(fingerprint: Dict) -> int:
     """Calculate an integrity score (0-100) based on forensic indicators"""
-    score = 100
+    score = MAX_SCORE
     
     # Deduct for incremental updates
     updates = fingerprint.get("incremental_updates", {})
@@ -224,7 +242,7 @@ def _calculate_integrity_score(fingerprint: Dict) -> int:
     if len(tampering.get("metadata_inconsistencies", [])) > 0:
         score -= 10
     
-    return max(0, min(100, score))
+    return max(MIN_SCORE, min(MAX_SCORE, score))
 
 
 def _calculate_similarity(fp1: Dict, fp2: Dict) -> float:

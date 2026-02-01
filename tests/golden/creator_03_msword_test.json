@@ -1,0 +1,165 @@
+{
+  "file": "creator_03_msword_test.pdf",
+  "file_path": "tests/fixtures/creator_03_msword_test.pdf",
+  "software": {
+    "creator": "Microsoft\u00ae Word for Microsoft 365",
+    "producer": "Microsoft\u00ae Word for Microsoft 365",
+    "creator_normalized": "microsoft\u00ae word for microsoft",
+    "producer_normalized": "microsoft\u00ae word for microsoft"
+  },
+  "structure": {
+    "pdf_version": "1.7",
+    "object_count": 12,
+    "page_count": 1,
+    "object_types": {
+      "/Catalog": 1,
+      "/Pages": 1,
+      "Dictionary": 2,
+      "/Page": 1,
+      "/Font": 1,
+      "Stream": 6
+    }
+  },
+  "fonts": [
+    "/Helvetica"
+  ],
+  "streams": {
+    "filters": {
+      "/FlateDecode": 5
+    },
+    "filter_signature": "/FlateDecode"
+  },
+  "resources": {},
+  "page_layout": {
+    "page_sizes": {
+      "595.0x842.0": 1
+    },
+    "size_signature": "595.0x842.0"
+  },
+  "xmp_namespaces": [],
+  "naming_patterns": {
+    "has_subset_fonts": false,
+    "has_acroform": false,
+    "has_xfa": false
+  },
+  "source_hash": "77e01540c98bcf0b",
+  "incremental_updates": {
+    "has_incremental_updates": false,
+    "update_count": 0,
+    "trailer_count": 1,
+    "xref_sections": 1,
+    "suspicious": false,
+    "details": [],
+    "was_modified": true,
+    "modification_indicators": [
+      "Document ID changed after creation (original \u2260 current)"
+    ],
+    "original_id_match": false,
+    "dates_match": true,
+    "creation_date": "",
+    "modification_date": "",
+    "original_id": "00c285c2a340c3903cc3ae234d49c2a7",
+    "current_id": "5b3f37e4886b2bfe52169ba50c9ffd1a",
+    "change_metrics": {
+      "modification_score": 20,
+      "bytes_added": 0,
+      "revision_sizes": [],
+      "objects_per_revision": [],
+      "content_changes": {},
+      "annotation_count": 0,
+      "form_field_count": 0,
+      "change_types": [
+        "Document ID modified"
+      ],
+      "severity": "minor",
+      "total_objects": 12
+    },
+    "modification_summary": "Document was modified after initial creation"
+  },
+  "security_indicators": {
+    "has_javascript": false,
+    "has_launch_action": false,
+    "has_embedded_files": false,
+    "has_openaction": false,
+    "has_aa": false,
+    "urls_found": [],
+    "suspicious_elements": [],
+    "risk_level": "low"
+  },
+  "entropy": {
+    "average_entropy": 4.2,
+    "max_entropy": 4.33,
+    "high_entropy_count": 0,
+    "total_streams": 5,
+    "entropy_distribution": {
+      "low": 0,
+      "medium": 5,
+      "high": 0
+    },
+    "suspicious": false
+  },
+  "embedded_content": {
+    "image_count": 0,
+    "image_formats": [],
+    "embedded_file_count": 0,
+    "embedded_files": [],
+    "total_embedded_size": 0,
+    "images_with_exif": 0
+  },
+  "timeline": {
+    "creation_date": "",
+    "modification_date": "",
+    "all_dates": [],
+    "date_anomalies": []
+  },
+  "integrity_score": 100,
+  "tampering": {
+    "is_compromised": false,
+    "compromise_confidence": "low",
+    "risk_score": 20,
+    "indicators": [
+      "9 orphan object(s) found - possible remnants of editing"
+    ],
+    "structural_anomalies": [
+      "XREF/startxref mismatch: 2 xref vs 1 startxref"
+    ],
+    "hidden_content": [],
+    "orphan_objects": [
+      "Object 3",
+      "Object 4",
+      "Object 5",
+      "Object 6",
+      "Object 7"
+    ],
+    "metadata_inconsistencies": [],
+    "page_hashes": [
+      {
+        "page": 1,
+        "content_hash": "910acf44af270764",
+        "char_count": 210
+      }
+    ],
+    "shadow_attack_risk": false,
+    "recommendations": [
+      "\ud83d\udd0d Minor anomalies detected - may be normal",
+      "Review specific indicators before trusting"
+    ]
+  },
+  "revision_content": {
+    "has_revisions": false,
+    "revision_count": 0,
+    "revisions": [],
+    "content_changes": [],
+    "additions": [],
+    "deletions": [],
+    "summary": "No incremental updates found - document appears to be single revision"
+  },
+  "source_id": {
+    "type": "office_export",
+    "system": "Microsoft Office",
+    "confidence": "medium",
+    "details": [
+      "Exported from Microsoft Office application"
+    ]
+  }
+}

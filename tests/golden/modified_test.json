@@ -1,0 +1,225 @@
+{
+  "file": "modified_test.pdf",
+  "file_path": "tests/fixtures/modified_test.pdf",
+  "software": {
+    "creator": "Invoice Generator",
+    "producer": "PyMuPDF",
+    "creator_normalized": "invoice generator",
+    "producer_normalized": "pymupdf"
+  },
+  "structure": {
+    "pdf_version": "1.7",
+    "object_count": 11,
+    "page_count": 1,
+    "object_types": {
+      "/Catalog": 1,
+      "/Pages": 1,
+      "Dictionary": 2,
+      "/Page": 1,
+      "/Font": 1,
+      "Stream": 5
+    }
+  },
+  "fonts": [
+    "/Helvetica"
+  ],
+  "streams": {
+    "filters": {
+      "/FlateDecode": 4
+    },
+    "filter_signature": "/FlateDecode"
+  },
+  "resources": {},
+  "page_layout": {
+    "page_sizes": {
+      "595.0x842.0": 1
+    },
+    "size_signature": "595.0x842.0"
+  },
+  "xmp_namespaces": [],
+  "naming_patterns": {
+    "has_subset_fonts": false,
+    "has_acroform": false,
+    "has_xfa": false
+  },
+  "source_hash": "a94ac4c6b273bd64",
+  "incremental_updates": {
+    "has_incremental_updates": true,
+    "update_count": 1,
+    "trailer_count": 2,
+    "xref_sections": 2,
+    "suspicious": false,
+    "details": [
+      "Document has 1 incremental update(s)",
+      "Multiple trailer sections detected (2)"
+    ],
+    "was_modified": true,
+    "modification_indicators": [
+      "1 incremental update(s) detected",
+      "Document ID changed after creation (original \u2260 current)"
+    ],
+    "original_id_match": false,
+    "dates_match": true,
+    "creation_date": "",
+    "modification_date": "",
+    "original_id": "c3a9c280c3b050c28dc3a44ec3a7c3a9",
+    "current_id": "374e3555b045a9fbb8cbfcf50808de91",
+    "change_metrics": {
+      "modification_score": 50,
+      "bytes_added": 523,
+      "revision_sizes": [
+        {
+          "revision": 1,
+          "size": 1400,
+          "cumulative": 1400
+        },
+        {
+          "revision": 2,
+          "size": 523,
+          "cumulative": 1923
+        }
+      ],
+      "objects_per_revision": [],
+      "content_changes": {},
+      "annotation_count": 0,
+      "form_field_count": 0,
+      "change_types": [
+        "523 bytes added",
+        "Document ID modified"
+      ],
+      "severity": "significant",
+      "original_size": 1400,
+      "final_size": 1923,
+      "size_increase_percent": 37.4,
+      "total_objects": 11
+    },
+    "modification_summary": "Document was modified after initial creation"
+  },
+  "security_indicators": {
+    "has_javascript": false,
+    "has_launch_action": false,
+    "has_embedded_files": false,
+    "has_openaction": false,
+    "has_aa": false,
+    "urls_found": [],
+    "suspicious_elements": [],
+    "risk_level": "low"
+  },
+  "entropy": {
+    "average_entropy": 4.36,
+    "max_entropy": 4.36,
+    "high_entropy_count": 0,
+    "total_streams": 1,
+    "entropy_distribution": {
+      "low": 0,
+      "medium": 1,
+      "high": 0
+    },
+    "suspicious": false
+  },
+  "embedded_content": {
+    "image_count": 0,
+    "image_formats": [],
+    "embedded_file_count": 0,
+    "embedded_files": [],
+    "total_embedded_size": 0,
+    "images_with_exif": 0
+  },
+  "timeline": {
+    "creation_date": "",
+    "modification_date": "",
+    "all_dates": [],
+    "date_anomalies": []
+  },
+  "integrity_score": 85,
+  "tampering": {
+    "is_compromised": false,
+    "compromise_confidence": "low",
+    "risk_score": 20,
+    "indicators": [
+      "8 orphan object(s) found - possible remnants of editing",
+      "Creator (Invoice Generator) and Producer (PyMuPDF) are from different systems"
+    ],
+    "structural_anomalies": [
+      "XREF/startxref mismatch: 4 xref vs 2 startxref"
+    ],
+    "hidden_content": [],
+    "orphan_objects": [
+      "Object 3",
+      "Object 4",
+      "Object 5",
+      "Object 6",
+      "Object 7"
+    ],
+    "metadata_inconsistencies": [
+      "Creator (Invoice Generator) and Producer (PyMuPDF) are from different systems"
+    ],
+    "page_hashes": [
+      {
+        "page": 1,
+        "content_hash": "616fe082c9ffe58d",
+        "char_count": 116
+      }
+    ],
+    "shadow_attack_risk": false,
+    "recommendations": [
+      "\ud83d\udd0d Minor anomalies detected - may be normal",
+      "Review specific indicators before trusting"
+    ]
+  },
+  "revision_content": {
+    "has_revisions": true,
+    "revision_count": 2,
+    "revisions": [
+      {
+        "revision": 1,
+        "size": 1400,
+        "page_count": 1,
+        "text": "[Page 1]\nOriginal Invoice #001\nCustomer: Test Customer\nAmount: $100.00\nDate: 2026-01-01",
+        "char_count": 87
+      },
+      {
+        "revision": 2,
+        "size": 1923,
+        "page_count": 1,
+        "text": "[Page 1]\nOriginal Invoice #001\nCustomer: Test Customer\nAmount: $100.00\nDate: 2026-01-01\nMODIFIED: Amount changed to $1000.00",
+        "char_count": 124
+      }
+    ],
+    "content_changes": [
+      {
+        "from_revision": 1,
+        "to_revision": 2,
+        "has_changes": true,
+        "additions": [
+          {
+            "text": "MODIFIED: Amount changed to $1000.00",
+            "revision": 2
+          }
+        ],
+        "deletions": [],
+        "diff_lines": [
+          "--- ",
+          "+++ ",
+          "@@ -5 +5,2 @@",
+          " Date: 2026-01-01",
+          "+MODIFIED: Amount changed to $1000.00"
+        ]
+      }
+    ],
+    "additions": [
+      {
+        "text": "MODIFIED: Amount changed to $1000.00",
+        "revision": 2
+      }
+    ],
+    "deletions": [],
+    "summary": "Found 1 revision(s) with content changes: 1 addition(s), 0 deletion(s)"
+  },
+  "source_id": {
+    "type": "unknown",
+    "system": "Unknown",
+    "confidence": "low",
+    "details": []
+  }
+}
