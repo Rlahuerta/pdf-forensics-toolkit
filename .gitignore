@@ -39,3 +39,4 @@ Thumbs.db
 # Phase 2: Downloaded PDF samples (too large for git)
 data/downloads/
 data/samples/
+/.sisyphus
