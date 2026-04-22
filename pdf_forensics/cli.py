@@ -13,7 +13,7 @@ import sys
 import json
 from pathlib import Path
 
-from pdf_forensics.limits import check_file_size
+from pdf_forensics.limits import check_file_size, validate_pdf_file
 from pdf_forensics.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -64,9 +64,9 @@ def main_source_identifier():
         print("No PDF files found")
         sys.exit(1)
     
-    # Check file sizes before processing
+    # Validate files before processing
     for pdf_file in pdf_files:
-        is_ok, error_msg = check_file_size(str(pdf_file))
+        is_ok, error_msg = validate_pdf_file(str(pdf_file))
         if not is_ok:
             print(f"⛔ Error: {error_msg}")
             sys.exit(1)
@@ -130,8 +130,8 @@ def main_verify_signature():
     
     pdf_path = sys.argv[1]
     
-    # Check file size before processing
-    is_ok, error_msg = check_file_size(pdf_path)
+    # Validate file before processing
+    is_ok, error_msg = validate_pdf_file(pdf_path)
     if not is_ok:
         print(f"⛔ Error: {error_msg}")
         sys.exit(1)
@@ -192,9 +192,9 @@ def main_compare_pdfs():
     pdf1 = sys.argv[1]
     pdf2 = sys.argv[2]
     
-    # Check file sizes before processing
+    # Validate files before processing
     for pdf_path in [pdf1, pdf2]:
-        is_ok, error_msg = check_file_size(pdf_path)
+        is_ok, error_msg = validate_pdf_file(pdf_path)
         if not is_ok:
             print(f"⛔ Error: {error_msg}")
             sys.exit(1)

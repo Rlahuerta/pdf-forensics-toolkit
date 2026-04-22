@@ -128,32 +128,30 @@ def _detect_incremental_updates(pdf_path: str) -> IncrementalUpdateResult:
     
     # Check creation vs modification dates
     try:
-        doc = fitz.open(pdf_path)
-        meta = doc.metadata
-        
-        if meta:  # type: ignore[truthy-function] -- fitz metadata can be None, stubs don't reflect this
-            creation = meta.get("creationDate", "")
-            modification = meta.get("modDate", "")
-        else:
-            creation = ""
-            modification = ""
-        
-        result["creation_date"] = creation
-        result["modification_date"] = modification
-        
-        if creation and modification:
-            # Normalize dates for comparison (remove timezone variations)
-            creation_clean = re.sub(r"[+\-]\d{2}'\d{2}'?$", "", creation)
-            modification_clean = re.sub(r"[+\-]\d{2}'\d{2}'?$", "", modification)
-            
-            if creation_clean != modification_clean:
-                result["dates_match"] = False
-                result["was_modified"] = True
-                result["modification_indicators"].append(
-                    f"Modification date differs from creation date"
-                )
-        
-        doc.close()
+        with fitz.open(pdf_path) as doc:
+            meta = doc.metadata
+
+            if meta:  # type: ignore[truthy-function] -- fitz metadata can be None, stubs don't reflect this
+                creation = meta.get("creationDate", "")
+                modification = meta.get("modDate", "")
+            else:
+                creation = ""
+                modification = ""
+
+            result["creation_date"] = creation
+            result["modification_date"] = modification
+
+            if creation and modification:
+                # Normalize dates for comparison (remove timezone variations)
+                creation_clean = re.sub(r"[+\-]\d{2}'\d{2}'?$", "", creation)
+                modification_clean = re.sub(r"[+\-]\d{2}'\d{2}'?$", "", modification)
+
+                if creation_clean != modification_clean:
+                    result["dates_match"] = False
+                    result["was_modified"] = True
+                    result["modification_indicators"].append(
+                        f"Modification date differs from creation date"
+                    )
     except Exception as e:
         logger.warning(f"Failed to extract metadata: {e}")
     
@@ -178,9 +176,8 @@ def _compare_library_metadata(pdf_path: str) -> List[str]:
     
     try:
         # PyMuPDF
-        doc = fitz.open(pdf_path)
-        fitz_meta = doc.metadata
-        doc.close()
+        with fitz.open(pdf_path) as doc:
+            fitz_meta = doc.metadata
         
         # pypdf
         reader = PdfReader(pdf_path)
@@ -241,23 +238,22 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
     
     # 0. Check for suspicious producers
     try:
-        doc = fitz.open(pdf_path)
-        meta = doc.metadata
-        producer = (meta.get("producer", "") or "").lower() if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
-        creator = (meta.get("creator", "") or "").lower() if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
-        
-        for sus in SUSPICIOUS_PRODUCERS:
-            if sus in producer or sus in creator:
-                result["indicators"].append(f"Document processed with online/suspicious tool: {sus}")
-                risk_score += SCORING_POINTS_SUSPICIOUS_PRODUCER
-                break
-        
-        # Common producers are informational only, no risk score
-        for common in COMMON_PRODUCERS:
-            if common in producer or common in creator:
-                result["indicators"].append(f"Document created with common tool: {common}")
-                break
-        doc.close()
+        with fitz.open(pdf_path) as doc:
+            meta = doc.metadata
+            producer = (meta.get("producer", "") or "").lower() if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
+            creator = (meta.get("creator", "") or "").lower() if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
+
+            for sus in SUSPICIOUS_PRODUCERS:
+                if sus in producer or sus in creator:
+                    result["indicators"].append(f"Document processed with online/suspicious tool: {sus}")
+                    risk_score += SCORING_POINTS_SUSPICIOUS_PRODUCER
+                    break
+
+            # Common producers are informational only, no risk score
+            for common in COMMON_PRODUCERS:
+                if common in producer or common in creator:
+                    result["indicators"].append(f"Document created with common tool: {common}")
+                    break
     except Exception as e:
         logger.warning(f"Failed to extract metadata: {e}")
 
@@ -487,113 +483,109 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
     
     # 4. Metadata Consistency Check
     try:
-        doc = fitz.open(pdf_path)
-        meta = doc.metadata
-        
-        inconsistencies = []
-        
-        # Check for suspicious metadata patterns
-        creator = meta.get("creator", "") or "" if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
-        producer = meta.get("producer", "") or "" if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
-        
-        # Different creator/producer might indicate modification
-        if creator and producer:
-            creator_base = re.sub(r'[\d\.\s]+', '', creator.lower())
-            producer_base = re.sub(r'[\d\.\s]+', '', producer.lower())
-            
-            # If they're completely different systems
-            known_pairs = [
-                ("pdfsharp", "pdfsharp"),
-                ("adobe", "adobe"),
-                ("microsoft", "microsoft"),
-                ("designer", "adobe"),
-            ]
-            
-            is_valid_pair = False
-            for c, p in known_pairs:
-                if c in creator_base and p in producer_base:
-                    is_valid_pair = True
-                    break
-            
-            if not is_valid_pair and creator_base and producer_base:
-                if creator_base[:5] != producer_base[:5]:
-                    inconsistencies.append(
-                        f"Creator ({creator[:30]}) and Producer ({producer[:30]}) are from different systems"
-                    )
-        
-        # Check creation vs modification date logic
-        creation = meta.get("creationDate", "") if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
-        modification = meta.get("modDate", "") if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
-        
-        if creation and modification:
-            # Parse dates and check if modification is before creation (impossible)
-            try:
-                # Extract year from PDF date format
-                creation_year = int(re.search(r'D:(\d{4})', creation).group(1)) if creation and re.search(r'D:(\d{4})', creation) else 0  # type: ignore[union-attr] -- re.search result checked before .group call
-                mod_year = int(re.search(r'D:(\d{4})', modification).group(1)) if modification and re.search(r'D:(\d{4})', modification) else 0  # type: ignore[union-attr] -- re.search result checked before .group call
-                
-                if mod_year > 0 and creation_year > 0 and mod_year < creation_year:
-                    inconsistencies.append(
-                        f"Modification date ({modification}) is before creation date ({creation}) - impossible"
-                    )
-                    risk_score += SCORING_POINTS_DATE_INCONSISTENCY
-            except Exception as e:
-                logger.warning(f"Failed to extract metadata: {e}")
-        
-        # Check XMP vs Info dict consistency
-        with pikepdf.open(pdf_path) as pdf:
-            if pdf.Root.get('/Metadata'):
+        with fitz.open(pdf_path) as doc:
+            meta = doc.metadata
+
+            inconsistencies = []
+
+            # Check for suspicious metadata patterns
+            creator = meta.get("creator", "") or "" if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
+            producer = meta.get("producer", "") or "" if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
+
+            # Different creator/producer might indicate modification
+            if creator and producer:
+                creator_base = re.sub(r'[\d\.\s]+', '', creator.lower())
+                producer_base = re.sub(r'[\d\.\s]+', '', producer.lower())
+
+                # If they're completely different systems
+                known_pairs = [
+                    ("pdfsharp", "pdfsharp"),
+                    ("adobe", "adobe"),
+                    ("microsoft", "microsoft"),
+                    ("designer", "adobe"),
+                ]
+
+                is_valid_pair = False
+                for c, p in known_pairs:
+                    if c in creator_base and p in producer_base:
+                        is_valid_pair = True
+                        break
+
+                if not is_valid_pair and creator_base and producer_base:
+                    if creator_base[:5] != producer_base[:5]:
+                        inconsistencies.append(
+                            f"Creator ({creator[:30]}) and Producer ({producer[:30]}) are from different systems"
+                        )
+
+            # Check creation vs modification date logic
+            creation = meta.get("creationDate", "") if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
+            modification = meta.get("modDate", "") if meta else ""  # type: ignore[union-attr] -- meta can be None, runtime handles
+
+            if creation and modification:
+                # Parse dates and check if modification is before creation (impossible)
                 try:
-                    xmp = bytes(pdf.Root['/Metadata'].read_bytes()).decode('utf-8', errors='ignore')
-                    
-                    # Extract XMP dates
-                    xmp_create = re.search(r'CreateDate["\']?>([^<]+)<', xmp)
-                    xmp_modify = re.search(r'ModifyDate["\']?>([^<]+)<', xmp)
-                    
-                    if xmp_create and creation:
-                        # Compare dates (rough check)
-                        xmp_date = xmp_create.group(1)[:10]
-                        info_date = re.search(r'D:(\d{8})', creation)
-                        if info_date:
-                            info_formatted = f"{info_date.group(1)[:4]}-{info_date.group(1)[4:6]}-{info_date.group(1)[6:8]}"
-                            if xmp_date != info_formatted:
-                                inconsistencies.append(
-                                    f"XMP CreateDate ({xmp_date}) differs from Info dict ({info_formatted})"
-                                )
-                                risk_score += 15
+                    # Extract year from PDF date format
+                    creation_year = int(re.search(r'D:(\d{4})', creation).group(1)) if creation and re.search(r'D:(\d{4})', creation) else 0  # type: ignore[union-attr] -- re.search result checked before .group call
+                    mod_year = int(re.search(r'D:(\d{4})', modification).group(1)) if modification and re.search(r'D:(\d{4})', modification) else 0  # type: ignore[union-attr] -- re.search result checked before .group call
+
+                    if mod_year > 0 and creation_year > 0 and mod_year < creation_year:
+                        inconsistencies.append(
+                            f"Modification date ({modification}) is before creation date ({creation}) - impossible"
+                        )
+                        risk_score += SCORING_POINTS_DATE_INCONSISTENCY
                 except Exception as e:
                     logger.warning(f"Failed to extract metadata: {e}")
-        
-        if inconsistencies:
-            result["metadata_inconsistencies"] = inconsistencies
-            result["indicators"].extend(inconsistencies)
-            
-        doc.close()
-        
+
+            # Check XMP vs Info dict consistency
+            with pikepdf.open(pdf_path) as pdf:
+                if pdf.Root.get('/Metadata'):
+                    try:
+                        xmp = bytes(pdf.Root['/Metadata'].read_bytes()).decode('utf-8', errors='ignore')
+
+                        # Extract XMP dates
+                        xmp_create = re.search(r'CreateDate["\']?>([^<]+)<', xmp)
+                        xmp_modify = re.search(r'ModifyDate["\']?>([^<]+)<', xmp)
+
+                        if xmp_create and creation:
+                            # Compare dates (rough check)
+                            xmp_date = xmp_create.group(1)[:10]
+                            info_date = re.search(r'D:(\d{8})', creation)
+                            if info_date:
+                                info_formatted = f"{info_date.group(1)[:4]}-{info_date.group(1)[4:6]}-{info_date.group(1)[6:8]}"
+                                if xmp_date != info_formatted:
+                                    inconsistencies.append(
+                                        f"XMP CreateDate ({xmp_date}) differs from Info dict ({info_formatted})"
+                                    )
+                                    risk_score += 15
+                    except Exception as e:
+                        logger.warning(f"Failed to extract metadata: {e}")
+
+            if inconsistencies:
+                result["metadata_inconsistencies"] = inconsistencies
+                result["indicators"].extend(inconsistencies)
+
     except Exception as e:
         result["metadata_inconsistencies"].append(f"Error: {str(e)}")
     
     # 5. Page Content Hashing (for tamper evidence)
     try:
-        doc = fitz.open(pdf_path)
-        
-        for page_num in range(min(len(doc), 20)):  # Limit to first 20 pages
-            page = doc[page_num]
-            text = page.get_text()
-            
-            # Hash the text content
-            text_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]  # type: ignore[union-attr] -- page.get_text returns str, type inference incomplete
-            
-            result["page_hashes"].append({
-                "page": page_num + 1,
-                "content_hash": text_hash,
-                "char_count": len(text),
-            })
-        
-        doc.close()
-        
+        with fitz.open(pdf_path) as doc:
+
+            for page_num in range(min(len(doc), 20)):  # Limit to first 20 pages
+                page = doc[page_num]
+                text = page.get_text()
+
+                # Hash the text content
+                text_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]  # type: ignore[union-attr] -- page.get_text returns str, type inference incomplete
+
+                result["page_hashes"].append({
+                    "page": page_num + 1,
+                    "content_hash": text_hash,
+                    "char_count": len(text),
+                })
+
     except Exception as e:
-        pass
+        logger.debug(f"Page hashing failed: {e}")
     
     # 6. XREF Structural Analysis
     try:

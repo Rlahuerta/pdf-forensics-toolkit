@@ -86,7 +86,7 @@ class TestMainSourceIdentifier:
     def test_file_size_limit_enforcement(self, simple_pdf):
         """Test that file size limit is checked"""
         with patch.object(sys, 'argv', ['pdf_forensics', str(simple_pdf)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 # Simulate file too large
                 mock_check.return_value = (False, "File size exceeds limit")
                 
@@ -190,7 +190,7 @@ class TestMainVerifySignature:
     def test_file_size_limit_enforcement(self, simple_pdf):
         """Test that file size limit is checked"""
         with patch.object(sys, 'argv', ['verify_signature', str(simple_pdf)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 # Simulate file too large
                 mock_check.return_value = (False, "File size exceeds limit")
                 
@@ -262,7 +262,7 @@ class TestMainComparePdfs:
     def test_file_size_limit_enforcement_first_file(self, simple_pdf, modified_pdf):
         """Test that file size limit is checked for first file"""
         with patch.object(sys, 'argv', ['compare_pdfs', str(simple_pdf), str(modified_pdf)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 # Simulate first file too large
                 def size_check(path):
                     if path == str(simple_pdf):
@@ -278,7 +278,7 @@ class TestMainComparePdfs:
     def test_file_size_limit_enforcement_second_file(self, simple_pdf, modified_pdf):
         """Test that file size limit is checked for second file"""
         with patch.object(sys, 'argv', ['compare_pdfs', str(simple_pdf), str(modified_pdf)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 # Simulate second file too large
                 def size_check(path):
                     if path == str(modified_pdf):
@@ -325,7 +325,7 @@ class TestFileSizeLimit:
         large_file.write_bytes(b"PDF" * 100)  # Small file, but we'll mock size check
         
         with patch.object(sys, 'argv', ['pdf_forensics', str(large_file)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 mock_check.return_value = (False, "File size 150.00 MB exceeds limit of 100 MB")
                 
                 with pytest.raises(SystemExit) as exc_info:
@@ -338,7 +338,7 @@ class TestFileSizeLimit:
         large_file.write_bytes(b"PDF" * 100)
         
         with patch.object(sys, 'argv', ['verify_signature', str(large_file)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 mock_check.return_value = (False, "File size 150.00 MB exceeds limit of 100 MB")
                 
                 with pytest.raises(SystemExit) as exc_info:
@@ -353,7 +353,7 @@ class TestFileSizeLimit:
         large_file2.write_bytes(b"PDF" * 100)
         
         with patch.object(sys, 'argv', ['compare_pdfs', str(large_file1), str(large_file2)]):
-            with patch('pdf_forensics.cli.check_file_size') as mock_check:
+            with patch('pdf_forensics.cli.validate_pdf_file') as mock_check:
                 mock_check.return_value = (False, "File size 150.00 MB exceeds limit of 100 MB")
                 
                 with pytest.raises(SystemExit) as exc_info:

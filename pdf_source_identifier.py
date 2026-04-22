@@ -157,15 +157,15 @@ def extract_source_fingerprint(pdf_path: str) -> Dict[str, Any]:
                     if isinstance(resources, pikepdf.Object) and hasattr(resources, "get_object"):
                         try:
                             resources = resources.get_object()
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"Failed to resolve resources object reference: {e}")
                     if isinstance(resources, pikepdf.Dictionary) and '/Font' in resources:
                         font_dict = resources['/Font']
                         if isinstance(font_dict, pikepdf.Object) and hasattr(font_dict, "get_object"):
                             try:
                                 font_dict = font_dict.get_object()
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"Failed to resolve font dictionary reference: {e}")
                         if isinstance(font_dict, pikepdf.Dictionary):
                             for font_key, font_ref in font_dict.items():
                                 font_name = str(font_key)
@@ -174,7 +174,8 @@ def extract_source_fingerprint(pdf_path: str) -> Dict[str, Any]:
                                     if isinstance(font_ref, pikepdf.Object) and hasattr(font_ref, "get_object"):
                                         try:
                                             font_obj = font_ref.get_object()
-                                        except Exception:
+                                        except Exception as e:
+                                            logger.debug(f"Failed to resolve font object reference: {e}")
                                             font_obj = font_ref
                                     if isinstance(font_obj, pikepdf.Dictionary):
                                         base_font = font_obj.get('/BaseFont')
@@ -472,10 +473,10 @@ def _analyze_entropy(pdf_path: str) -> Dict[str, Any]:
                                 entropies.append(entropy)
                                 if entropy > 7.5:  # High entropy threshold
                                     result["high_entropy_count"] += 1
-                        except Exception:
-                            pass
-                except Exception:
-                    pass
+                        except Exception as e:
+                            logger.debug(f"Failed to process stream data: {e}")
+                except Exception as e:
+                    logger.debug(f"Failed to process PDF object: {e}")
             
             if entropies:
                 result["total_streams"] = len(entropies)
@@ -528,8 +529,8 @@ def _analyze_embedded_content(pdf_path: str) -> Dict[str, Any]:
                             ext = base_image.get("ext", "unknown")
                             image_formats[ext] += 1
                             result["total_embedded_size"] += len(base_image.get("image", b""))
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Failed to extract image xref {xref}: {e}")
             
             result["image_formats"] = [{"format": k, "count": v} for k, v in image_formats.items()]
             
@@ -543,8 +544,8 @@ def _analyze_embedded_content(pdf_path: str) -> Dict[str, Any]:
                             "name": info.get("name", "unknown"),
                             "size": info.get("size", 0),
                         })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to check embedded files: {e}")
     except Exception as e:
         result["error"] = str(e)
     
@@ -579,8 +580,8 @@ def _parse_pdf_date(date_str: str) -> str:
         if match:
              return match.group(0)
              
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Failed to parse PDF date '{date_str}': {e}")
         
     return date_str
 
@@ -624,8 +625,8 @@ def _extract_timeline(pdf_path: str, fingerprint: Dict) -> Dict[str, Any]:
                             seen_normalized = [x.get("normalized") for x in dates]
                             if normalized and normalized not in seen_normalized:
                                 dates.append({"source": "xmp_metadata", "value": d, "normalized": normalized})
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to extract XMP timeline: {e}")
             
             result["all_dates"] = dates
             

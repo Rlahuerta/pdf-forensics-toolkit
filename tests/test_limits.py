@@ -1,12 +1,12 @@
 """
 Tests for pdf_forensics.limits module.
 
-Tests the check_file_size() function which validates file sizes against
-the 100 MB limit to prevent resource exhaustion from very large PDF files.
+Tests the check_file_size() and validate_pdf_file() functions which validate
+file sizes against the 100 MB limit and verify PDF file integrity.
 """
 
 from unittest.mock import patch
-from pdf_forensics.limits import check_file_size, MAX_FILE_SIZE_BYTES
+from pdf_forensics.limits import check_file_size, validate_pdf_file, MAX_FILE_SIZE_BYTES
 
 
 class TestCheckFileSize:
@@ -153,12 +153,75 @@ class TestCheckFileSize:
         # Arrange: Create a valid test file
         test_file = tmp_path / "test.pdf"
         test_file.write_bytes(b"x" * 1024)
-        
+
         # Act: Mock os.path.getsize to raise OSError
         with patch('os.path.getsize', side_effect=OSError("Permission denied")):
             is_valid, message = check_file_size(str(test_file))
-        
+
         # Assert
         assert is_valid is False
         assert "Cannot read file size" in message
         assert "Permission denied" in message
+
+
+class TestValidatePdfFile:
+    """Test validate_pdf_file() function for PDF content validation"""
+
+    def test_valid_pdf_file(self, tmp_path):
+        """Test that a valid PDF with %PDF- header passes validation"""
+        test_file = tmp_path / "valid.pdf"
+        test_file.write_bytes(b"%PDF-1.7\nrest of content")
+
+        is_valid, message = validate_pdf_file(str(test_file))
+
+        assert is_valid is True
+        assert message == ""
+
+    def test_non_pdf_file(self, tmp_path):
+        """Test that a file without %PDF- header fails validation"""
+        test_file = tmp_path / "fake.pdf"
+        test_file.write_bytes(b"This is not a PDF file at all")
+
+        is_valid, message = validate_pdf_file(str(test_file))
+
+        assert is_valid is False
+        assert "%PDF-" in message
+
+    def test_empty_file_fails(self, tmp_path):
+        """Test that an empty file fails validation (no header)"""
+        test_file = tmp_path / "empty.pdf"
+        test_file.write_bytes(b"")
+
+        is_valid, message = validate_pdf_file(str(test_file))
+
+        assert is_valid is False
+        assert "%PDF-" in message
+
+    def test_symlink_rejected(self, tmp_path):
+        """Test that a symlink is rejected for security"""
+        target = tmp_path / "real.pdf"
+        target.write_bytes(b"%PDF-1.7\ncontent")
+        link = tmp_path / "link.pdf"
+        link.symlink_to(target)
+
+        is_valid, message = validate_pdf_file(str(link))
+
+        assert is_valid is False
+        assert "Symlink" in message
+
+    def test_oversized_file_fails(self, tmp_path):
+        """Test that oversized file fails at size check before header check"""
+        test_file = tmp_path / "large.pdf"
+        test_file.write_bytes(b"%PDF-1.7\n" + b"x" * (101 * 1024 * 1024))
+
+        is_valid, message = validate_pdf_file(str(test_file))
+
+        assert is_valid is False
+        assert "exceed" in message.lower()
+
+    def test_nonexistent_file_fails(self):
+        """Test that nonexistent file fails validation"""
+        is_valid, message = validate_pdf_file("/nonexistent/file.pdf")
+
+        assert is_valid is False
+        assert "not found" in message.lower()
