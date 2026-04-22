@@ -14,6 +14,7 @@ from pdf_forensics.constants import (
     SCORING_POINTS_SUBSTANTIAL_CHANGE,
     SCORING_POINTS_ID_MISMATCH,
     SCORING_POINTS_DATE_MISMATCH,
+    SCORING_POINTS_ANNOTATIONS,
     SCORING_POINTS_LARGE_SIZE_INCREASE,
     SCORING_POINTS_MEDIUM_SIZE_INCREASE,
     SCORING_POINTS_SMALL_SIZE_INCREASE,
@@ -174,7 +175,7 @@ def _quantify_changes(pdf_path: str, incremental_data: Dict) -> Dict[str, Any]:
     if metrics["annotation_count"] > MAX_ANNOTATIONS_NORMAL:
         score += SCORING_POINTS_SUBSTANTIAL_CHANGE
     elif metrics["annotation_count"] > 0:
-        score += SCORING_POINTS_DATE_MISMATCH
+        score += SCORING_POINTS_ANNOTATIONS
     
     metrics["modification_score"] = min(score, MAX_SCORE)
     
@@ -287,4 +288,7 @@ def _calculate_similarity(fp1: Dict, fp2: Dict) -> float:
     if fp1["naming_patterns"].get("has_acroform") == fp2["naming_patterns"].get("has_acroform"):
         score += 5
     
-    return round((score / max_score) * 100, 1)
+    if max_score == 0:
+        return float(MIN_SCORE)
+
+    return max(MIN_SCORE, min(MAX_SCORE, round((score / max_score) * 100, 1)))

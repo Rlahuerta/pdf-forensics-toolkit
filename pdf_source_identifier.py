@@ -23,8 +23,8 @@ import pikepdf
 from pypdf import PdfReader
 
 from pdf_forensics.constants import (
-    KNOWN_PRODUCERS, 
-    SUSPICIOUS_PRODUCERS, 
+    KNOWN_PRODUCERS,
+    SUSPICIOUS_PRODUCERS,
     COMMON_PRODUCERS,
     INTEGRITY_SCORE_EXCELLENT_MIN,
     INTEGRITY_SCORE_GOOD_MIN,
@@ -36,6 +36,7 @@ from pdf_forensics.constants import (
     SIMILARITY_SCORE_GOOD_MIN,
     MAX_DIFF_LINES_TO_REPORT,
     MAX_DIFF_LINES_PREVIEW,
+    MAX_OBJECTS_TO_ANALYZE,
     MAX_SCORE,
 )
 from pdf_forensics.detection import _compare_library_metadata
@@ -453,7 +454,7 @@ def _analyze_entropy(pdf_path: str) -> Dict[str, Any]:
         with pikepdf.open(pdf_path) as pdf:
             entropies = []
             
-            for objnum in range(1, min(len(pdf.objects) + 1, 500)):  # Limit scan
+            for objnum in range(1, min(len(pdf.objects) + 1, MAX_OBJECTS_TO_ANALYZE)):
                 try:
                     obj = pdf.get_object((objnum, 0))
                     if isinstance(obj, pikepdf.Stream):

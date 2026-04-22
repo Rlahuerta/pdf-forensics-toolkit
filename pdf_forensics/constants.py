@@ -59,7 +59,10 @@ MAX_ORPHAN_OBJECTS_NORMAL: Final[int] = 10
 """Maximum normal orphan objects. More suggests potential hidden content."""
 
 MAX_FORM_FIELDS_NORMAL: Final[int] = 10
-"""Maximum normal form fields. More than this may indicate suspicious manipulation."""
+"""Maximum normal form fields (AcroForm). More than this may indicate suspicious manipulation."""
+
+MAX_FORM_XOBJECTS_PER_PAGE: Final[int] = 10
+"""Maximum normal form XObjects per page. More may indicate shadow attack overlay content."""
 
 MAX_ANNOTATIONS_NORMAL: Final[int] = 10
 """Maximum normal annotations. Excessive annotations added after creation."""
@@ -108,6 +111,9 @@ SCORING_POINTS_ID_MISMATCH: Final[int] = 20
 SCORING_POINTS_DATE_MISMATCH: Final[int] = 10
 """Points added for creation/modification date mismatch."""
 
+SCORING_POINTS_ANNOTATIONS: Final[int] = 10
+"""Points added for presence of annotations (indicates manual edits)."""
+
 SCORING_POINTS_LARGE_SIZE_INCREASE: Final[int] = 20
 """Points added for large size increase (>50%) in updates."""
 
@@ -120,11 +126,29 @@ SCORING_POINTS_SMALL_SIZE_INCREASE: Final[int] = 10
 SCORING_POINTS_ORPHAN_OBJECTS: Final[int] = 15
 """Points added for presence of orphan objects."""
 
+SCORING_POINTS_ORPHAN_OBJECTS_HIGH: Final[int] = 20
+"""Points added for high count of orphan objects (above MAX_ORPHAN_OBJECTS_NORMAL)."""
+
+SCORING_POINTS_ORPHAN_OBJECTS_MODERATE: Final[int] = 10
+"""Points added for moderate count of orphan objects (4-10)."""
+
+SCORING_POINTS_ORPHAN_OBJECTS_LOW: Final[int] = 5
+"""Points added for low count of orphan objects (1-3)."""
+
 SCORING_POINTS_HIDDEN_CONTENT: Final[int] = 25
 """Points added for hidden content indicators."""
 
 SCORING_POINTS_SECURITY_THREAT: Final[int] = 10
 """Points added per security threat (JavaScript, launch actions, etc.)."""
+
+SCORING_POINTS_SUSPICIOUS_PRODUCER: Final[int] = 15
+"""Points added when document was processed with a suspicious/online tool."""
+
+SCORING_POINTS_OPTIONAL_CONTENT: Final[int] = 10
+"""Points added for optional content layers detected."""
+
+SCORING_POINTS_DATE_INCONSISTENCY: Final[int] = 30
+"""Points added for impossible date relationships (mod before creation)."""
 
 # Percentage Thresholds - relative change indicators
 SIZE_INCREASE_LARGE_PERCENT: Final[int] = 50

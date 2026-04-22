@@ -18,10 +18,20 @@ from pdf_forensics.constants import (
     MAX_CONTENT_STREAMS_PER_PAGE,
     MAX_ORPHAN_OBJECTS_NORMAL,
     MAX_FORM_FIELDS_NORMAL,
+    MAX_FORM_XOBJECTS_PER_PAGE,
     MAX_ANNOTATIONS_NORMAL,
     SCORING_POINTS_ORPHAN_OBJECTS,
+    SCORING_POINTS_ORPHAN_OBJECTS_HIGH,
+    SCORING_POINTS_ORPHAN_OBJECTS_MODERATE,
+    SCORING_POINTS_ORPHAN_OBJECTS_LOW,
     SCORING_POINTS_HIDDEN_CONTENT,
     SCORING_POINTS_SECURITY_THREAT,
+    SCORING_POINTS_SUSPICIOUS_PRODUCER,
+    SCORING_POINTS_OPTIONAL_CONTENT,
+    SCORING_POINTS_DATE_INCONSISTENCY,
+    TAMPERING_RISK_CRITICAL_MIN,
+    TAMPERING_RISK_HIGH_MIN,
+    TAMPERING_RISK_MEDIUM_MIN,
     MAX_SCORE,
 )
 
@@ -239,7 +249,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
         for sus in SUSPICIOUS_PRODUCERS:
             if sus in producer or sus in creator:
                 result["indicators"].append(f"Document processed with online/suspicious tool: {sus}")
-                risk_score += 15
+                risk_score += SCORING_POINTS_SUSPICIOUS_PRODUCER
                 break
         
         # Common producers are informational only, no risk score
@@ -335,12 +345,12 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
             if orphan_count > 0:
                 result["indicators"].append(f"{orphan_count} orphan object(s) found - possible remnants of editing")
                 if orphan_count > MAX_ORPHAN_OBJECTS_NORMAL:
-                    risk_score += 20
+                    risk_score += SCORING_POINTS_ORPHAN_OBJECTS_HIGH
                     result["structural_anomalies"].append(f"High orphan count ({orphan_count}) - significant editing history")
                 elif orphan_count > 3:
-                    risk_score += 10
+                    risk_score += SCORING_POINTS_ORPHAN_OBJECTS_MODERATE
                 else:
-                    risk_score += 5
+                    risk_score += SCORING_POINTS_ORPHAN_OBJECTS_LOW
                     
     except Exception as e:
         result["structural_anomalies"].append(f"Error analyzing objects: {str(e)}")
@@ -393,7 +403,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                         layer_count = len(ocgs)
                         if layer_count > 0:
                             result["hidden_content"].append(f"{layer_count} optional content layer(s) detected")
-                            risk_score += 10
+                            risk_score += SCORING_POINTS_OPTIONAL_CONTENT
             
             if hidden_items:
                 result["hidden_content"].extend(hidden_items[:10])  # Limit to 10 items
@@ -462,7 +472,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                                         form_count += 1
                             except Exception as e:
                                 logger.warning(f"Failed to extract object type: {e}")
-                        if form_count > MAX_FORM_FIELDS_NORMAL:
+                        if form_count > MAX_FORM_XOBJECTS_PER_PAGE:
                              result["structural_anomalies"].append(
                                  f"Page {page_num + 1} has {form_count} form XObjects"
                              )
@@ -470,7 +480,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
             if shadow_risk:
                 result["shadow_attack_risk"] = True
                 result["indicators"].append("Potential shadow attack structure detected")
-                risk_score += 25
+                risk_score += SCORING_POINTS_HIDDEN_CONTENT
                 
     except Exception as e:
         pass
@@ -526,7 +536,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
                     inconsistencies.append(
                         f"Modification date ({modification}) is before creation date ({creation}) - impossible"
                     )
-                    risk_score += 30
+                    risk_score += SCORING_POINTS_DATE_INCONSISTENCY
             except Exception as e:
                 logger.warning(f"Failed to extract metadata: {e}")
         
@@ -611,19 +621,19 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
     # 7. Calculate Final Risk and Determine Compromise Status
     result["risk_score"] = min(risk_score, MAX_SCORE)
     
-    if risk_score >= 60:
+    if risk_score >= TAMPERING_RISK_CRITICAL_MIN:
         result["is_compromised"] = True
         result["compromise_confidence"] = "high"
         result["recommendations"].append("⛔ Document shows strong signs of tampering - do not trust")
         result["recommendations"].append("Obtain original document from source")
         result["recommendations"].append("Verify with document issuer if possible")
-    elif risk_score >= 40:
+    elif risk_score >= TAMPERING_RISK_HIGH_MIN:
         result["is_compromised"] = True
         result["compromise_confidence"] = "medium"
         result["recommendations"].append("⚠️ Document shows moderate tampering indicators")
         result["recommendations"].append("Request verification from document source")
         result["recommendations"].append("Compare with known authentic copies")
-    elif risk_score >= 20:
+    elif risk_score >= TAMPERING_RISK_MEDIUM_MIN:
         result["is_compromised"] = False
         result["compromise_confidence"] = "low"
         result["recommendations"].append("🔍 Minor anomalies detected - may be normal")
