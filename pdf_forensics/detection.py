@@ -32,6 +32,9 @@ from pdf_forensics.constants import (
     TAMPERING_RISK_CRITICAL_MIN,
     TAMPERING_RISK_HIGH_MIN,
     TAMPERING_RISK_MEDIUM_MIN,
+    MAX_OBJECTS_ORPHAN_SCAN,
+    MAX_SECURITY_SCAN_OBJECTS,
+    MAX_PAGES_TO_SCAN,
     MAX_SCORE,
 )
 
@@ -280,7 +283,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
             all_objects = set()
             
             # Get all object numbers
-            for objnum in range(1, min(len(pdf.objects) + 1, 2000)):
+            for objnum in range(1, min(len(pdf.objects) + 1, MAX_OBJECTS_ORPHAN_SCAN)):
                 try:
                     obj = pdf.get_object((objnum, 0))
                     if obj is not None:
@@ -571,7 +574,7 @@ def _detect_tampering_indicators(pdf_path: str) -> TamperingResult:
     try:
         with fitz.open(pdf_path) as doc:
 
-            for page_num in range(min(len(doc), 20)):  # Limit to first 20 pages
+            for page_num in range(min(len(doc), MAX_PAGES_TO_SCAN)):
                 page = doc[page_num]
                 text = page.get_text()
 
@@ -670,7 +673,7 @@ def _detect_security_indicators(pdf_path: str) -> SecurityResult:
                     result["has_embedded_files"] = True
             
             # Scan all objects for JavaScript and Launch actions
-            for objnum in range(1, min(len(pdf.objects) + 1, 1000)):  # Limit scan
+            for objnum in range(1, min(len(pdf.objects) + 1, MAX_SECURITY_SCAN_OBJECTS)):
                 try:
                     obj = pdf.get_object((objnum, 0))
                     if isinstance(obj, pikepdf.Dictionary):

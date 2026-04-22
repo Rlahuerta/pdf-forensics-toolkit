@@ -164,9 +164,123 @@ SIZE_INCREASE_SMALL_PERCENT: Final[int] = 5
 MAX_OBJECTS_TO_ANALYZE: Final[int] = 1000
 """Maximum PDF objects to analyze (prevent resource exhaustion on malicious PDFs)."""
 
+MAX_OBJECTS_ORPHAN_SCAN: Final[int] = 2000
+"""Maximum PDF objects to scan for orphan detection (higher for thoroughness)."""
+
+MAX_SECURITY_SCAN_OBJECTS: Final[int] = 1000
+"""Maximum PDF objects to scan for security indicators."""
+
+MAX_PAGES_TO_SCAN: Final[int] = 20
+"""Maximum pages to scan for content hashing."""
+
+# Entropy Analysis Thresholds
+ENTROPY_HIGH_THRESHOLD: Final[float] = 7.5
+"""Shannon entropy threshold above which content is considered high-entropy (possible obfuscation)."""
+
+HIGH_ENTROPY_RATIO: Final[float] = 0.5
+"""Ratio of high-entropy streams above which entropy is flagged as suspicious."""
+
+STREAM_ANALYSIS_SIZE_LIMIT: Final[int] = 64 * 1024
+"""Maximum bytes to read from a stream for entropy analysis (64 KB)."""
+
+MIN_STREAM_SIZE_BYTES: Final[int] = 100
+"""Minimum stream size in bytes to include in entropy analysis."""
+
 # Score Bounds - all scores capped at these values
 MAX_SCORE: Final[int] = 100
 """Maximum value for any integrity, tampering, or similarity score."""
 
 MIN_SCORE: Final[int] = 0
 """Minimum value for any integrity, tampering, or similarity score."""
+
+# ============================================================================
+# PRODUCER CLASSIFICATION DATA
+# ============================================================================
+
+# Detailed classification metadata for known PDF producers.
+# Keys are lowercase search terms matched against creator/producer fields.
+# Each entry provides type, system name, confidence, and human-readable details.
+PRODUCER_CLASSIFICATIONS: Final[Dict[str, Dict[str, Any]]] = {
+    "pdfsharp": {
+        "type": "dynamic_generation",
+        "system": "PDFsharp (.NET)",
+        "confidence": "high",
+        "details": [
+            ".NET library for programmatic PDF generation",
+            "Commonly used in ASP.NET web applications",
+            "Documents generated on-demand from templates",
+        ],
+    },
+    "adobe experience manager": {
+        "type": "enterprise_forms",
+        "system": "Adobe Experience Manager Forms",
+        "confidence": "high",
+        "details": [
+            "Enterprise document generation platform",
+            "Uses Adobe Designer for form templates",
+            "Common in insurance, banking, government",
+        ],
+    },
+    "aem": {
+        "type": "enterprise_forms",
+        "system": "Adobe Experience Manager Forms",
+        "confidence": "high",
+        "details": [
+            "Enterprise document generation platform",
+            "Uses Adobe Designer for form templates",
+            "Common in insurance, banking, government",
+        ],
+    },
+    "itext": {
+        "type": "dynamic_generation",
+        "system": "iText (Java)",
+        "confidence": "high",
+        "details": [
+            "Java library for PDF generation",
+            "Common in Java web applications",
+        ],
+    },
+    "wkhtmltopdf": {
+        "type": "html_to_pdf",
+        "system": "wkhtmltopdf",
+        "confidence": "high",
+        "details": [
+            "Converts HTML/CSS to PDF",
+            "Uses WebKit rendering engine",
+        ],
+    },
+    "chrome": {
+        "type": "browser_print",
+        "system": "Chrome/Chromium Print",
+        "confidence": "high",
+        "details": [
+            "Browser print-to-PDF functionality",
+            "May indicate manual document creation",
+        ],
+    },
+    "chromium": {
+        "type": "browser_print",
+        "system": "Chrome/Chromium Print",
+        "confidence": "high",
+        "details": [
+            "Browser print-to-PDF functionality",
+            "May indicate manual document creation",
+        ],
+    },
+    "microsoft": {
+        "type": "office_export",
+        "system": "Microsoft Office",
+        "confidence": "medium",
+        "details": [
+            "Exported from Microsoft Office application",
+        ],
+    },
+    "acrobat": {
+        "type": "desktop_creation",
+        "system": "Adobe Acrobat",
+        "confidence": "high",
+        "details": [
+            "Created or edited with Adobe Acrobat",
+        ],
+    },
+}

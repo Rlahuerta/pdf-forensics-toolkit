@@ -38,6 +38,11 @@ from pdf_forensics.constants import (
     MAX_DIFF_LINES_PREVIEW,
     MAX_OBJECTS_TO_ANALYZE,
     MAX_SCORE,
+    ENTROPY_HIGH_THRESHOLD,
+    HIGH_ENTROPY_RATIO,
+    STREAM_ANALYSIS_SIZE_LIMIT,
+    MIN_STREAM_SIZE_BYTES,
+    PRODUCER_CLASSIFICATIONS,
 )
 from pdf_forensics.detection import _compare_library_metadata
 from pdf_forensics.logging_config import get_logger
@@ -464,14 +469,13 @@ def _analyze_entropy(pdf_path: str) -> Dict[str, Any]:
                             # (checking uncompressed length is hard without reading, but we can catch errors)
                             data = bytes(obj.read_bytes())
                             
-                            # Limit analysis to first 64KB
-                            if len(data) > 64 * 1024:
-                                data = data[:64 * 1024]
-                                
-                            if len(data) > 100:  # Only analyze meaningful streams
+                            if len(data) > STREAM_ANALYSIS_SIZE_LIMIT:
+                                data = data[:STREAM_ANALYSIS_SIZE_LIMIT]
+
+                            if len(data) > MIN_STREAM_SIZE_BYTES:
                                 entropy = calculate_entropy(data)
                                 entropies.append(entropy)
-                                if entropy > 7.5:  # High entropy threshold
+                                if entropy > ENTROPY_HIGH_THRESHOLD:
                                     result["high_entropy_count"] += 1
                         except Exception as e:
                             logger.debug(f"Failed to process stream data: {e}")
@@ -490,7 +494,7 @@ def _analyze_entropy(pdf_path: str) -> Dict[str, Any]:
                 result["entropy_distribution"] = {"low": low, "medium": medium, "high": high}
                 
                 # Flag suspicious if too many high-entropy streams
-                if result["high_entropy_count"] > len(entropies) * 0.5:
+                if result["high_entropy_count"] > len(entropies) * HIGH_ENTROPY_RATIO:
                     result["suspicious"] = True
                     
     except Exception as e:
@@ -692,92 +696,34 @@ def _classify_source(fingerprint: Dict) -> Dict[str, Any]:
     """Classify the likely source system based on fingerprint"""
     creator = fingerprint["software"].get("creator", "").lower()
     producer = fingerprint["software"].get("producer", "").lower()
-    
+
     classification = {
         "type": "unknown",
         "system": "Unknown",
         "confidence": "low",
         "details": [],
     }
-    
-    # PDFsharp detection
-    if "pdfsharp" in creator or "pdfsharp" in producer:
-        classification["type"] = "dynamic_generation"
-        classification["system"] = "PDFsharp (.NET)"
-        classification["confidence"] = "high"
-        classification["details"] = [
-            ".NET library for programmatic PDF generation",
-            "Commonly used in ASP.NET web applications",
-            "Documents generated on-demand from templates",
-        ]
-        # Extract version
-        version_match = re.search(r'pdfsharp\s*([\d\.\-\w]+)', creator + producer, re.IGNORECASE)
-        if version_match:
-            classification["version"] = version_match.group(1)
-    
-    # Adobe Experience Manager
-    elif "adobe experience manager" in producer or "aem" in producer:
-        classification["type"] = "enterprise_forms"
-        classification["system"] = "Adobe Experience Manager Forms"
-        classification["confidence"] = "high"
-        classification["details"] = [
-            "Enterprise document generation platform",
-            "Uses Adobe Designer for form templates",
-            "Common in insurance, banking, government",
-        ]
-        if "designer" in creator:
-            version_match = re.search(r'designer\s*([\d\.]+)', creator, re.IGNORECASE)
-            if version_match:
-                classification["template_version"] = f"Designer {version_match.group(1)}"
-    
-    # iText
-    elif "itext" in creator or "itext" in producer:
-        classification["type"] = "dynamic_generation"
-        classification["system"] = "iText (Java)"
-        classification["confidence"] = "high"
-        classification["details"] = [
-            "Java library for PDF generation",
-            "Common in Java web applications",
-        ]
-    
-    # wkhtmltopdf
-    elif "wkhtmltopdf" in creator or "wkhtmltopdf" in producer:
-        classification["type"] = "html_to_pdf"
-        classification["system"] = "wkhtmltopdf"
-        classification["confidence"] = "high"
-        classification["details"] = [
-            "Converts HTML/CSS to PDF",
-            "Uses WebKit rendering engine",
-        ]
-    
-    # Chrome/Chromium
-    elif "chrome" in creator or "chromium" in producer:
-        classification["type"] = "browser_print"
-        classification["system"] = "Chrome/Chromium Print"
-        classification["confidence"] = "high"
-        classification["details"] = [
-            "Browser print-to-PDF functionality",
-            "May indicate manual document creation",
-        ]
-    
-    # Microsoft
-    elif "microsoft" in creator or "microsoft" in producer:
-        classification["type"] = "office_export"
-        classification["system"] = "Microsoft Office"
-        classification["confidence"] = "medium"
-        classification["details"] = [
-            "Exported from Microsoft Office application",
-        ]
-    
-    # Adobe Acrobat
-    elif "acrobat" in creator or "acrobat" in producer:
-        classification["type"] = "desktop_creation"
-        classification["system"] = "Adobe Acrobat"
-        classification["confidence"] = "high"
-        classification["details"] = [
-            "Created or edited with Adobe Acrobat",
-        ]
-    
+
+    # Data-driven lookup against PRODUCER_CLASSIFICATIONS
+    for key, meta in PRODUCER_CLASSIFICATIONS.items():
+        if key in creator or key in producer:
+            classification["type"] = meta["type"]
+            classification["system"] = meta["system"]
+            classification["confidence"] = meta["confidence"]
+            classification["details"] = list(meta["details"])
+
+            # Version extraction for specific producers
+            if key == "pdfsharp":
+                version_match = re.search(r'pdfsharp\s*([\d\.\-\w]+)', creator + producer, re.IGNORECASE)
+                if version_match:
+                    classification["version"] = version_match.group(1)
+            elif key in ("adobe experience manager", "aem") and "designer" in creator:
+                version_match = re.search(r'designer\s*([\d\.]+)', creator, re.IGNORECASE)
+                if version_match:
+                    classification["template_version"] = f"Designer {version_match.group(1)}"
+
+            return classification
+
     return classification
 
 

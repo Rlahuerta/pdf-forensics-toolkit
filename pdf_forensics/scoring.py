@@ -6,6 +6,7 @@ Functions for calculating integrity scores, modification scores, and similarity 
 
 import pikepdf
 from typing import Dict, Any
+from pdf_forensics.types import QuantifyChangesResult
 from pdf_forensics.logging_config import get_logger
 from pdf_forensics.constants import (
     SIZE_INCREASE_LARGE_PERCENT,
@@ -36,7 +37,7 @@ __all__ = [
 ]
 
 
-def _quantify_changes(pdf_path: str, incremental_data: Dict) -> Dict[str, Any]:
+def _quantify_changes(pdf_path: str, incremental_data: Dict) -> QuantifyChangesResult:
     """Quantify the extent of changes in a PDF document"""
     metrics = {
         "modification_score": 0,  # 0-100 score
