@@ -302,10 +302,14 @@ python -m pytest tests/test_pdf_source_identifier.py::TestDetectTamperingIndicat
 | Test File | Tests | Coverage |
 |-----------|:-----:|----------|
 | `test_pdf_source_identifier.py` | 53 | Main forensic analysis functions |
-| `test_verify_signature.py` | 5 | Digital signature verification |
+| `test_cli.py` | 23 | CLI entry points (97% coverage) |
+| `test_reporting.py` | 17 | Report generation (88% coverage) |
+| `test_signature.py` | 13 | Digital signature validation (64% coverage) |
+| `test_limits.py` | 11 | File size limit enforcement (100% coverage) |
+| `test_verify_signature.py` | 5 | Signature extraction and verification |
 | `test_compare_pdfs.py` | 5 | PDF comparison functions |
 
-**Total: 63 tests**
+**Total: 149 tests** | **Overall Coverage: 83%**
 
 ### Test Fixtures
 

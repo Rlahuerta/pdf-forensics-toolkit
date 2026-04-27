@@ -1,0 +1,173 @@
+{
+  "file": "multipage_test.pdf",
+  "file_path": "tests/fixtures/multipage_test.pdf",
+  "software": {
+    "creator": "Report Generator",
+    "producer": "PyMuPDF",
+    "creator_normalized": "report generator",
+    "producer_normalized": "pymupdf"
+  },
+  "structure": {
+    "pdf_version": "1.7",
+    "object_count": 16,
+    "page_count": 3,
+    "object_types": {
+      "/Catalog": 1,
+      "/Pages": 1,
+      "Dictionary": 4,
+      "/Page": 3,
+      "/Font": 1,
+      "Stream": 6
+    }
+  },
+  "fonts": [
+    "/Helvetica"
+  ],
+  "streams": {
+    "filters": {
+      "/FlateDecode": 3
+    },
+    "filter_signature": "/FlateDecode"
+  },
+  "resources": {},
+  "page_layout": {
+    "page_sizes": {
+      "595.0x842.0": 3
+    },
+    "size_signature": "595.0x842.0"
+  },
+  "xmp_namespaces": [],
+  "naming_patterns": {
+    "has_subset_fonts": false,
+    "has_acroform": false,
+    "has_xfa": false
+  },
+  "source_hash": "8ad3484a906036cc",
+  "incremental_updates": {
+    "has_incremental_updates": false,
+    "update_count": 0,
+    "trailer_count": 1,
+    "xref_sections": 1,
+    "suspicious": false,
+    "details": [],
+    "was_modified": true,
+    "modification_indicators": [
+      "Document ID changed after creation (original \u2260 current)"
+    ],
+    "original_id_match": false,
+    "dates_match": true,
+    "creation_date": "",
+    "modification_date": "",
+    "original_id": "c2b1350534c2a6775150c2a1c383c399",
+    "current_id": "9e169bdc8054d45be0ab1f120486355c",
+    "change_metrics": {
+      "modification_score": 20,
+      "bytes_added": 0,
+      "revision_sizes": [],
+      "objects_per_revision": [],
+      "content_changes": {},
+      "annotation_count": 0,
+      "form_field_count": 0,
+      "change_types": [
+        "Document ID modified"
+      ],
+      "severity": "minor",
+      "total_objects": 16
+    },
+    "modification_summary": "Document was modified after initial creation"
+  },
+  "security_indicators": {
+    "has_javascript": false,
+    "has_launch_action": false,
+    "has_embedded_files": false,
+    "has_openaction": false,
+    "has_aa": false,
+    "urls_found": [],
+    "suspicious_elements": [],
+    "risk_level": "low"
+  },
+  "entropy": {
+    "average_entropy": 0.0,
+    "max_entropy": 0.0,
+    "high_entropy_count": 0,
+    "total_streams": 0,
+    "entropy_distribution": {},
+    "suspicious": false
+  },
+  "embedded_content": {
+    "image_count": 0,
+    "image_formats": [],
+    "embedded_file_count": 0,
+    "embedded_files": [],
+    "total_embedded_size": 0,
+    "images_with_exif": 0
+  },
+  "timeline": {
+    "creation_date": "",
+    "modification_date": "",
+    "all_dates": [],
+    "date_anomalies": []
+  },
+  "integrity_score": 90,
+  "tampering": {
+    "is_compromised": false,
+    "compromise_confidence": "low",
+    "risk_score": 30,
+    "indicators": [
+      "13 orphan object(s) found - possible remnants of editing",
+      "Creator (Report Generator) and Producer (PyMuPDF) are from different systems"
+    ],
+    "structural_anomalies": [
+      "High orphan count (13) - significant editing history",
+      "XREF/startxref mismatch: 2 xref vs 1 startxref"
+    ],
+    "hidden_content": [],
+    "orphan_objects": [
+      "Object 3",
+      "Object 4",
+      "Object 5",
+      "Object 6",
+      "Object 7"
+    ],
+    "metadata_inconsistencies": [
+      "Creator (Report Generator) and Producer (PyMuPDF) are from different systems"
+    ],
+    "page_hashes": [
+      {
+        "page": 1,
+        "content_hash": "eda357c49d1bc71c",
+        "char_count": 36
+      },
+      {
+        "page": 2,
+        "content_hash": "20c3592f19f98163",
+        "char_count": 36
+      },
+      {
+        "page": 3,
+        "content_hash": "dbb799ade44947a3",
+        "char_count": 36
+      }
+    ],
+    "shadow_attack_risk": false,
+    "recommendations": [
+      "\ud83d\udd0d Minor anomalies detected - may be normal",
+      "Review specific indicators before trusting"
+    ]
+  },
+  "revision_content": {
+    "has_revisions": false,
+    "revision_count": 0,
+    "revisions": [],
+    "content_changes": [],
+    "additions": [],
+    "deletions": [],
+    "summary": "No incremental updates found - document appears to be single revision"
+  },
+  "source_id": {
+    "type": "unknown",
+    "system": "Unknown",
+    "confidence": "low",
+    "details": []
+  }
+}

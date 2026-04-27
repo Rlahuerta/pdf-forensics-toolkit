@@ -46,3 +46,241 @@ SUSPICIOUS_PRODUCERS: Final[List[str]] = [
 COMMON_PRODUCERS: Final[List[str]] = [
     "microsoft print to pdf", "chrome", "firefox"
 ]
+
+# ============================================================================
+# FORENSIC ANALYSIS NUMERIC THRESHOLDS
+# ============================================================================
+
+# Content Structure Thresholds - detect suspicious document structures
+MAX_CONTENT_STREAMS_PER_PAGE: Final[int] = 10
+"""Maximum normal content streams per page. More than this may indicate shadow attacks."""
+
+MAX_ORPHAN_OBJECTS_NORMAL: Final[int] = 10
+"""Maximum normal orphan objects. More suggests potential hidden content."""
+
+MAX_FORM_FIELDS_NORMAL: Final[int] = 10
+"""Maximum normal form fields (AcroForm). More than this may indicate suspicious manipulation."""
+
+MAX_FORM_XOBJECTS_PER_PAGE: Final[int] = 10
+"""Maximum normal form XObjects per page. More may indicate shadow attack overlay content."""
+
+MAX_ANNOTATIONS_NORMAL: Final[int] = 10
+"""Maximum normal annotations. Excessive annotations added after creation."""
+
+# Scanning and Limits - prevent resource exhaustion
+MAX_DIFF_LINES_TO_REPORT: Final[int] = 50
+"""Limit diff output to first N lines to keep reports manageable."""
+
+MAX_DIFF_LINES_PREVIEW: Final[int] = 30
+"""Limit preview diff lines in similarity analysis reports."""
+
+# Integrity Score Thresholds - interpret document trustworthiness
+INTEGRITY_SCORE_EXCELLENT_MIN: Final[int] = 90
+"""Minimum score for 'Excellent' integrity rating (90-100)."""
+
+INTEGRITY_SCORE_GOOD_MIN: Final[int] = 70
+"""Minimum score for 'Good' integrity rating (70-89)."""
+
+INTEGRITY_SCORE_QUESTIONABLE_MIN: Final[int] = 50
+"""Minimum score for 'Questionable' integrity rating (50-69)."""
+
+# Tampering Risk Thresholds - interpret modification risk
+TAMPERING_RISK_CRITICAL_MIN: Final[int] = 60
+"""Minimum score for 'Critical' tampering risk (61-100)."""
+
+TAMPERING_RISK_HIGH_MIN: Final[int] = 40
+"""Minimum score for 'High' tampering risk (41-60)."""
+
+TAMPERING_RISK_MEDIUM_MIN: Final[int] = 20
+"""Minimum score for 'Medium' tampering risk (21-40)."""
+
+# Similarity Score Thresholds - grouping documents by source
+SIMILARITY_SCORE_EXCELLENT_MIN: Final[int] = 80
+"""Minimum score for documents from the same source (likely same pipeline)."""
+
+SIMILARITY_SCORE_GOOD_MIN: Final[int] = 50
+"""Minimum score for similar documents (possibly related sources)."""
+
+# Scoring Point Values - contributions to integrity and modification scores
+SCORING_POINTS_SUBSTANTIAL_CHANGE: Final[int] = 15
+"""Points deducted for substantial changes to document."""
+
+SCORING_POINTS_ID_MISMATCH: Final[int] = 20
+"""Points added for document ID mismatch (indicates modification)."""
+
+SCORING_POINTS_DATE_MISMATCH: Final[int] = 10
+"""Points added for creation/modification date mismatch."""
+
+SCORING_POINTS_ANNOTATIONS: Final[int] = 10
+"""Points added for presence of annotations (indicates manual edits)."""
+
+SCORING_POINTS_LARGE_SIZE_INCREASE: Final[int] = 20
+"""Points added for large size increase (>50%) in updates."""
+
+SCORING_POINTS_MEDIUM_SIZE_INCREASE: Final[int] = 15
+"""Points added for medium size increase (20-50%) in updates."""
+
+SCORING_POINTS_SMALL_SIZE_INCREASE: Final[int] = 10
+"""Points added for small size increase (5-20%) in updates."""
+
+SCORING_POINTS_ORPHAN_OBJECTS: Final[int] = 15
+"""Points added for presence of orphan objects."""
+
+SCORING_POINTS_ORPHAN_OBJECTS_HIGH: Final[int] = 20
+"""Points added for high count of orphan objects (above MAX_ORPHAN_OBJECTS_NORMAL)."""
+
+SCORING_POINTS_ORPHAN_OBJECTS_MODERATE: Final[int] = 10
+"""Points added for moderate count of orphan objects (4-10)."""
+
+SCORING_POINTS_ORPHAN_OBJECTS_LOW: Final[int] = 5
+"""Points added for low count of orphan objects (1-3)."""
+
+SCORING_POINTS_HIDDEN_CONTENT: Final[int] = 25
+"""Points added for hidden content indicators."""
+
+SCORING_POINTS_SECURITY_THREAT: Final[int] = 10
+"""Points added per security threat (JavaScript, launch actions, etc.)."""
+
+SCORING_POINTS_SUSPICIOUS_PRODUCER: Final[int] = 15
+"""Points added when document was processed with a suspicious/online tool."""
+
+SCORING_POINTS_OPTIONAL_CONTENT: Final[int] = 10
+"""Points added for optional content layers detected."""
+
+SCORING_POINTS_DATE_INCONSISTENCY: Final[int] = 30
+"""Points added for impossible date relationships (mod before creation)."""
+
+# Percentage Thresholds - relative change indicators
+SIZE_INCREASE_LARGE_PERCENT: Final[int] = 50
+"""Threshold for 'large' size increase (>50%)."""
+
+SIZE_INCREASE_MEDIUM_PERCENT: Final[int] = 20
+"""Threshold for 'medium' size increase (20-50%)."""
+
+SIZE_INCREASE_SMALL_PERCENT: Final[int] = 5
+"""Threshold for 'small' size increase (5-20%)."""
+
+# Object Scanning Limits - balance thoroughness vs performance
+MAX_OBJECTS_TO_ANALYZE: Final[int] = 1000
+"""Maximum PDF objects to analyze (prevent resource exhaustion on malicious PDFs)."""
+
+MAX_OBJECTS_ORPHAN_SCAN: Final[int] = 2000
+"""Maximum PDF objects to scan for orphan detection (higher for thoroughness)."""
+
+MAX_SECURITY_SCAN_OBJECTS: Final[int] = 1000
+"""Maximum PDF objects to scan for security indicators."""
+
+MAX_PAGES_TO_SCAN: Final[int] = 20
+"""Maximum pages to scan for content hashing."""
+
+# Entropy Analysis Thresholds
+ENTROPY_HIGH_THRESHOLD: Final[float] = 7.5
+"""Shannon entropy threshold above which content is considered high-entropy (possible obfuscation)."""
+
+HIGH_ENTROPY_RATIO: Final[float] = 0.5
+"""Ratio of high-entropy streams above which entropy is flagged as suspicious."""
+
+STREAM_ANALYSIS_SIZE_LIMIT: Final[int] = 64 * 1024
+"""Maximum bytes to read from a stream for entropy analysis (64 KB)."""
+
+MIN_STREAM_SIZE_BYTES: Final[int] = 100
+"""Minimum stream size in bytes to include in entropy analysis."""
+
+# Score Bounds - all scores capped at these values
+MAX_SCORE: Final[int] = 100
+"""Maximum value for any integrity, tampering, or similarity score."""
+
+MIN_SCORE: Final[int] = 0
+"""Minimum value for any integrity, tampering, or similarity score."""
+
+# ============================================================================
+# PRODUCER CLASSIFICATION DATA
+# ============================================================================
+
+# Detailed classification metadata for known PDF producers.
+# Keys are lowercase search terms matched against creator/producer fields.
+# Each entry provides type, system name, confidence, and human-readable details.
+PRODUCER_CLASSIFICATIONS: Final[Dict[str, Dict[str, Any]]] = {
+    "pdfsharp": {
+        "type": "dynamic_generation",
+        "system": "PDFsharp (.NET)",
+        "confidence": "high",
+        "details": [
+            ".NET library for programmatic PDF generation",
+            "Commonly used in ASP.NET web applications",
+            "Documents generated on-demand from templates",
+        ],
+    },
+    "adobe experience manager": {
+        "type": "enterprise_forms",
+        "system": "Adobe Experience Manager Forms",
+        "confidence": "high",
+        "details": [
+            "Enterprise document generation platform",
+            "Uses Adobe Designer for form templates",
+            "Common in insurance, banking, government",
+        ],
+    },
+    "aem": {
+        "type": "enterprise_forms",
+        "system": "Adobe Experience Manager Forms",
+        "confidence": "high",
+        "details": [
+            "Enterprise document generation platform",
+            "Uses Adobe Designer for form templates",
+            "Common in insurance, banking, government",
+        ],
+    },
+    "itext": {
+        "type": "dynamic_generation",
+        "system": "iText (Java)",
+        "confidence": "high",
+        "details": [
+            "Java library for PDF generation",
+            "Common in Java web applications",
+        ],
+    },
+    "wkhtmltopdf": {
+        "type": "html_to_pdf",
+        "system": "wkhtmltopdf",
+        "confidence": "high",
+        "details": [
+            "Converts HTML/CSS to PDF",
+            "Uses WebKit rendering engine",
+        ],
+    },
+    "chrome": {
+        "type": "browser_print",
+        "system": "Chrome/Chromium Print",
+        "confidence": "high",
+        "details": [
+            "Browser print-to-PDF functionality",
+            "May indicate manual document creation",
+        ],
+    },
+    "chromium": {
+        "type": "browser_print",
+        "system": "Chrome/Chromium Print",
+        "confidence": "high",
+        "details": [
+            "Browser print-to-PDF functionality",
+            "May indicate manual document creation",
+        ],
+    },
+    "microsoft": {
+        "type": "office_export",
+        "system": "Microsoft Office",
+        "confidence": "medium",
+        "details": [
+            "Exported from Microsoft Office application",
+        ],
+    },
+    "acrobat": {
+        "type": "desktop_creation",
+        "system": "Adobe Acrobat",
+        "confidence": "high",
+        "details": [
+            "Created or edited with Adobe Acrobat",
+        ],
+    },
+}

@@ -16,6 +16,7 @@ __all__ = [
     "IntegrityScoreResult",
     "SourceFingerprintResult",
     "SignatureExtractionResult",
+    "QuantifyChangesResult",
 ]
 
 
@@ -100,3 +101,17 @@ class SignatureExtractionResult(TypedDict):
     acroform_present: bool
     document_info: dict[str, Any]
     fingerprints: dict[str, str]
+
+
+class QuantifyChangesResult(TypedDict, total=False):
+    """Result from _quantify_changes() function."""
+    modification_score: int
+    bytes_added: int
+    revision_sizes: list[Any]
+    objects_per_revision: list[Any]
+    content_changes: dict[str, Any]
+    annotation_count: int
+    form_field_count: int
+    change_types: list[str]
+    severity: str
+    error: str
